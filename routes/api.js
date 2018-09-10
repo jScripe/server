@@ -1,5 +1,8 @@
 'use strict';
 
+// кеш кат и товар. рефакт. токен в хедер. добавить пут метод для эдд товар. доабвить коды ошибок 
+
+
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
@@ -42,7 +45,8 @@ function getItemById(categoryId, itemId) {
 ////////////////////////////////////////////////////////////////////
 
 router.get('/categories', (req, res) => {
-  res.send(catalog);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.send(catalog.categories);
 })
 
 // router.get('/categories', categories.returnTheCatalog(req, res, catalog));
@@ -170,3 +174,6 @@ router.get('/cart', (req, res) => {
 
 
 module.exports = router;
+
+
+// кеш кат и товар. рефакт. токен в хедер. добавить пут метод для эдд товар. доабвить коды ошибок 
