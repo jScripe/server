@@ -15,6 +15,9 @@ const goods = require('../data/goods');
 const users = require('../data/users');
 const usersCart = require('../data/usersCart');
 
+
+
+
 // let Categories = require('../controlles/categories');
 
 // let categories = new Categories;
@@ -45,7 +48,6 @@ function getItemById(categoryId, itemId) {
 ////////////////////////////////////////////////////////////////////
 
 router.get('/categories', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
   res.send(catalog.categories);
 })
 
@@ -89,7 +91,7 @@ router.post('/registration', bodyParserJson, (req, res) => {
     fs.writeFile('./data/users.json', JSON.stringify(data));
     res.send('регистрация прошла успешно!');
   } else {
-    res.send('пользователь с таким именем уже существует');
+    res.status('409').send('пользователь с таким именем уже существует');
   }
 })
 
@@ -102,7 +104,10 @@ router.post('/login', bodyParserJson, (req, res) => {
       if(user === req.body.username && data[user].password === req.body.password) {
         data[req.body.username].token = secretLine + user;
         fs.writeFile('./data/users.json', JSON.stringify(data));
+        res.header("Access-Control-Allow-Origin", "*");
         res.send(data[req.body.username].token);
+      } else if (user !== req.body.username || data[user].password !== req.body.password) {
+        res.status(400).send('Введённые данные не верны, повторите попытку');
       }
     } 
   }
@@ -167,6 +172,9 @@ router.delete('/cart', bodyParserJson, (req, res) => {
 })
 
 router.get('/cart', (req, res) => {
+  if(usersCart[req.headers.token] === undefined) {
+    res.status('204').send('Корзина пуста');
+  }
   let data = usersCart[req.headers.token]
   res.send(data);
 })
