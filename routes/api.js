@@ -18,12 +18,6 @@ const usersCart = require('../data/usersCart');
 
 
 
-// let Categories = require('../controlles/categories');
-
-// let categories = new Categories;
-
-
-
 function getCategoryById(id) {
   const result = catalog.categories.filter(item => {
     return item.id === +id;
@@ -51,12 +45,15 @@ router.get('/categories', (req, res) => {
   res.send(catalog.categories);
 })
 
-// router.get('/categories', categories.returnTheCatalog(req, res, catalog));
 
 router.get('/categories/:categoryId', (req, res) => {
   const id = req.params.categoryId;
   const category = getCategoryById(id);
   res.send(category);
+})
+
+router.get('/goods', (req, res) => {
+  res.send(goods);
 })
 
 router.get('/categories/:categoryId/goods', (req, res) => {
@@ -106,10 +103,9 @@ router.post('/login', bodyParserJson, (req, res) => {
         fs.writeFile('./data/users.json', JSON.stringify(data));
         res.header("Access-Control-Allow-Origin", "*");
         res.send(data[req.body.username].token);
-      } else if (user !== req.body.username || data[user].password !== req.body.password) {
-        res.status(400).send('Введённые данные не верны, повторите попытку');
-      }
-    } 
+      }  
+    }
+    res.status(400).send('Введённые данные не верны, повторите попытку'); 
   }
   res.status(401).send("Зарегистрируйтесь пожалуйста!");
 })
@@ -125,16 +121,20 @@ router.post('/logout', bodyParserJson, (req,res) => {
 
 function checkProductCart(products, categoryId, itemId) {
   let flag = false;
-  products.forEach((product) => {
+  if(products === undefined) {
+    return flag; 
+  } else {
+    products.forEach((product) => {
     if(+product.id === +itemId && +product.categoryId === +categoryId) {
-        flag = true;
-        increaseTheCounter(product);
+          flag = true;
+          increaseTheCounter(product);
+        }
+        console.log(product.id);
       }
-      console.log(product.id);
-    }
-    // console.log(flag);
-  ) 
-  return flag;  
+      // console.log(flag);
+    ) 
+    return flag;
+  }
 }
 
 function increaseTheCounter(item) {
@@ -146,13 +146,13 @@ router.post('/cart', bodyParserJson, (req, res) => {
   const categoryId = req.body.categoryId;
   const itemId = req.body.id;
   let goods = getItemById(categoryId, itemId);
-  if(Object.keys(data).length == 0) {
+  if(checkProductCart(data[req.body.token], categoryId, itemId)) {
+    fs.writeFile('./data/usersCart.json', JSON.stringify(data));
+    res.send('you have successfully added a similar product');
+  } else if(data[req.body.token] === undefined) {
     data[req.body.token] = goods;
     fs.writeFile('./data/usersCart.json', JSON.stringify(data));
     res.send('product successfully added');
-  } else if(checkProductCart(data[req.body.token], categoryId, itemId)) {
-    fs.writeFile('./data/usersCart.json', JSON.stringify(data));
-    res.send('you have successfully added a similar product');
   } else {
     data[req.body.token].push(goods[0]);
     fs.writeFile('./data/usersCart.json', JSON.stringify(data));
