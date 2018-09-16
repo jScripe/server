@@ -25,6 +25,7 @@ function getCategoryById(id) {
   return result;
 }
 
+
 function getGoodsFromSpecificCategory(categoryId) {
   const result = goods.filter(item => {
     return item.categoryId === +categoryId;
@@ -101,7 +102,6 @@ router.post('/login', bodyParserJson, (req, res) => {
       if(user === req.body.username && data[user].password === req.body.password) {
         data[req.body.username].token = secretLine + user;
         fs.writeFile('./data/users.json', JSON.stringify(data));
-        res.header("Access-Control-Allow-Origin", "*");
         res.send(data[req.body.username].token);
       }  
     }
@@ -118,6 +118,9 @@ router.post('/logout', bodyParserJson, (req,res) => {
 })
 
 /////////////////////////////////////////////////////////////////////////
+
+
+
 
 function checkProductCart(products, categoryId, itemId) {
   let flag = false;
